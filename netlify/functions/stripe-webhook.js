@@ -149,7 +149,7 @@ async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mo
 
     ${aftercareHtml}
 
-    <p style="font-family:Arial,sans-serif;margin:24px 0 0;">Need to reschedule? Reply to this email or reach us directly at <a href="mailto:teamfranklynllc@gmail.com" style="color:#A6455C;">teamfranklynllc@gmail.com</a> at least 24 hours before your appointment to transfer your deposit.</p>
+    <p style="font-family:Arial,sans-serif;margin:24px 0 0;">Need to reschedule? Reply to this email or reach us directly at <a href="mailto:monstrslayboutique@outlook.com" style="color:#A6455C;">monstrslayboutique@outlook.com</a> at least 24 hours before your appointment to transfer your deposit.</p>
 
     <p style="font-family:Arial,sans-serif;margin:24px 0 0;color:#6b6b6b;font-size:12px;">Monstr Slay Boutique &amp; Monstr Clawz · Hampton Roads, VA · Military Ready™</p>
   </div>`;

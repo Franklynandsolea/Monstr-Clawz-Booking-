@@ -35,6 +35,14 @@
 3. That page calls `get-booking-details` to show their receipt and prep checklist immediately.
 4. In the background, Stripe fires the `checkout.session.completed` webhook → `stripe-webhook.js` sends the full confirmation email (receipt + prep + aftercare guide, matched to whatever they booked: hair, locs, nails, or lashes).
 
+## Troubleshooting: "We couldn't reach secure checkout automatically"
+This message means the browser called `/.netlify/functions/create-deposit-session` and didn't get a working response back. To find the real cause:
+1. In Netlify: **your site → Logs → Functions → create-deposit-session**. Try a test booking again, then refresh the log — the actual error (missing key, bad request, etc.) will be printed there.
+2. Most common causes:
+   - `STRIPE_SECRET_KEY` isn't set yet, or was added *after* the last deploy — env variable changes need a new deploy to take effect (Site → Deploys → Trigger deploy → Clear cache and deploy).
+   - The key is a restricted key missing Checkout Session permissions, or a publishable key (`pk_...`) was pasted in instead of the secret key (`sk_...`).
+   - `package.json` isn't at the repo root, so Netlify never installed the `stripe` package for the function.
+
 ## Still worth deciding
 - **Real-time calendar / time slots**: this flow takes the request and deposit but doesn't check availability against a calendar yet. If you want clients picking an actual open time, that's a separate build (Calendly embed or a custom scheduler).
 - **IP address logging**: not currently captured. Can be added inside `create-deposit-session.js` from the request headers if you want it on file for the signed agreement.

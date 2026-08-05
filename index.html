@@ -487,6 +487,13 @@
       </div>
     </fieldset>
 
+    <div id="adultBlock" class="conditional-block" style="display:none;">
+      <div class="check-item">
+        <input type="checkbox" id="policyAdult">
+        <label for="policyAdult">I confirm that I am 18 years of age or older.</label>
+      </div>
+    </div>
+
     <div id="minorBlock" class="conditional-block" style="display:none;">
       <h4>Parent / Guardian Consent — required for clients under 18</h4>
       <div class="field-row">
@@ -571,13 +578,13 @@
         <ul><li>Everything included, every month</li></ul>
       </div>
     </div>
-    <p class="hint" style="margin-top:22px;">Interested in a pass? Email <a href="mailto:teamfranklynllc@gmail.com">teamfranklynllc@gmail.com</a> and we'll set up your recurring membership.</p>
+    <p class="hint" style="margin-top:22px;">Interested in a pass? Email <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a> and we'll set up your recurring membership.</p>
   </div>
 </section>
 
 <footer class="site">
   Military-friendly beauty appointments designed around your schedule. Regulation-compliant nails, protective styles, and natural lashes — available by appointment or mobile service throughout Hampton Roads.<br><br>
-  Monstr Slay Boutique &amp; Monstr Clawz · <a href="mailto:teamfranklynllc@gmail.com">teamfranklynllc@gmail.com</a>
+  Monstr Slay Boutique &amp; Monstr Clawz · <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a>
 </footer>
 
 <script>
@@ -614,10 +621,9 @@ const CATEGORIES = [
   },
   {
     id:'hairAddons', title:'Hair Add-Ons', note:'Starting prices',
+    contactNote:'Need us to provide the hair, or need extra hair for your style? Email <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a> before booking so we can quote it accurately — pricing varies by style and length.',
     items:[
-      {id:'hairProvided', name:'Hair Provided (varies by style)', price:50, note:'Starting at'},
       {id:'ombre', name:'Ombré / Custom Color Blend', price:50},
-      {id:'extraHair', name:'Extra Hair (if needed)', price:25, note:'Starting at'},
       {id:'addonTakedown', name:'Takedown (varies by style)', price:50, note:'Starting at'},
     ]
   },
@@ -745,21 +751,39 @@ function renderCategories(){
       const isPriceModifier = item.note === 'Starting at';
       const isIncluded = item.note === 'Included';
       const priceLabel = isIncluded ? 'Included' : (isPriceModifier ? `${item.note} ${fmt(item.price)}` : fmt(item.price));
-      const descriptiveNote = (item.note && !isPriceModifier && !isIncluded) ? `<span class="note">${item.note}</span>` : '';
+      const requiresBaseAttr = isIncluded ? `data-requires-base="nails"` : '';
+      const requiresBaseHint = isIncluded ? `<span class="note">Requires a paid nail base service</span>` : '';
+      const descriptiveNote = (item.note && !isPriceModifier && !isIncluded) ? `<span class="note">${item.note}</span>` : requiresBaseHint;
       return `<div class="service-row">
-        <input type="${inputType}" name="${cat.id}" id="${item.id}" data-cat="${cat.id}" data-name="${item.name}" data-price="${item.price}">
+        <input type="${inputType}" name="${cat.id}" id="${item.id}" data-cat="${cat.id}" data-name="${item.name}" data-price="${item.price}" ${requiresBaseAttr}>
         <label for="${item.id}">${item.name}${descriptiveNote}</label>
         <span class="price">${priceLabel}</span>
       </div>`;
     }).join('');
+    const contactNoteHtml = cat.contactNote ? `<p class="hint" style="padding:0 16px 12px;">${cat.contactNote}</p>` : '';
     return `<div class="category">
       <div class="category-head"><h3>${cat.title}</h3>${cat.note ? `<span class="category-note">${cat.note}</span>`:''}</div>
       <div class="service-list">${rows}</div>
+      ${contactNoteHtml}
     </div>`;
   }).join('');
 
   wrap.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(input=>{
     input.addEventListener('change', onServiceChange);
+  });
+  updateNailArtGating();
+}
+
+function updateNailArtGating(){
+  const hasNailBase = categoriesSelected(['nails']);
+  document.querySelectorAll('[data-requires-base="nails"]').forEach(input=>{
+    input.disabled = !hasNailBase;
+    const row = input.closest('.service-row');
+    if(row) row.style.opacity = hasNailBase ? '1' : '0.45';
+    if(!hasNailBase && input.checked){
+      input.checked = false;
+      delete state.selected[input.id];
+    }
   });
 }
 
@@ -828,6 +852,7 @@ function updateSummary(){
   document.getElementById('toStep2').disabled = items.length === 0;
 
   refreshConditionalHealth();
+  updateNailArtGating();
 }
 
 /* =========================================================
@@ -870,14 +895,19 @@ function renderPolicies(){
 }
 
 /* =========================================================
-   MINOR CONSENT — age check
+   MINOR / ADULT CONSENT — age check
 ========================================================= */
-document.getElementById('dob').addEventListener('change', e=>{
-  const dob = new Date(e.target.value);
+function updateAgeBlocks(){
+  const dobVal = document.getElementById('dob').value;
+  if(!dobVal) return;
+  const dob = new Date(dobVal);
   if(isNaN(dob)) return;
   const age = Math.floor((Date.now() - dob.getTime()) / (365.25*24*3600*1000));
-  document.getElementById('minorBlock').style.display = age < 18 ? 'block' : 'none';
-});
+  const isMinor = age < 18;
+  document.getElementById('minorBlock').style.display = isMinor ? 'block' : 'none';
+  document.getElementById('adultBlock').style.display = isMinor ? 'none' : 'block';
+}
+document.getElementById('dob').addEventListener('change', updateAgeBlocks);
 
 /* =========================================================
    STEP NAVIGATION
@@ -890,6 +920,7 @@ function goToStep(n){
   if(n === 3){
     renderPolicies();
     document.getElementById('hairPrepBlock').style.display = categoriesSelected(HAIR_CATS) ? 'block' : 'none';
+    updateAgeBlocks();
   }
   if(n === 4) renderReview();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -913,6 +944,8 @@ document.getElementById('toStep4').addEventListener('click', ()=>{
   const allChecked = Array.from(checks).every(c=>c.checked);
   const hairPrepVisible = document.getElementById('hairPrepBlock').style.display === 'block';
   const hairPrepOk = hairPrepVisible ? document.getElementById('policyHairPrep').checked : true;
+  const adultVisible = document.getElementById('adultBlock').style.display === 'block';
+  const adultOk = adultVisible ? document.getElementById('policyAdult').checked : true;
   const minorVisible = document.getElementById('minorBlock').style.display === 'block';
   let minorOk = true;
   if(minorVisible){
@@ -920,8 +953,8 @@ document.getElementById('toStep4').addEventListener('click', ()=>{
               document.getElementById('guardRel').value.trim() &&
               document.getElementById('guardPhone').value.trim();
   }
-  document.getElementById('step3Error').style.display = (!allChecked || !hairPrepOk || !minorOk) ? 'block' : 'none';
-  if(!allChecked || !hairPrepOk || !minorOk) return;
+  document.getElementById('step3Error').style.display = (!allChecked || !hairPrepOk || !adultOk || !minorOk) ? 'block' : 'none';
+  if(!allChecked || !hairPrepOk || !adultOk || !minorOk) return;
   goToStep(4);
 });
 
@@ -1059,7 +1092,7 @@ document.getElementById('payBtn').addEventListener('click', async ()=>{
     }
   } catch(err){
     statusEl.className = 'status-msg show err';
-    statusEl.textContent = 'We couldn\u2019t reach secure checkout automatically. Please text or email teamfranklynllc@gmail.com with your name and appointment details, and we\u2019ll send a secure payment link to confirm your booking.';
+    statusEl.textContent = 'We couldn\u2019t reach secure checkout automatically. Please text or email monstrslayboutique@outlook.com with your name and appointment details, and we\u2019ll send a secure payment link to confirm your booking.';
     payBtn.disabled = false;
     payBtn.textContent = 'Pay Deposit & Confirm Booking';
   }

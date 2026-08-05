@@ -10,7 +10,7 @@
 //      STRIPE_SECRET_KEY = sk_live_...   (or sk_test_... while testing)
 // 2. Deploy this file at netlify/functions/create-deposit-session.js
 //    (this repo's folder structure already matches that path).
-// 3. Update SUCCESS_URL https://monstrclawzbooking.netlify.app/booking-confirmed.html / CANCEL_URL https://monstrclawzbooking.netlify.app/index.html
+// 3. Update SUCCESS_URL / CANCEL_URL below to your live domain.
 // 4. Add "stripe" to a package.json in your project root:
 //      npm install stripe
 //
