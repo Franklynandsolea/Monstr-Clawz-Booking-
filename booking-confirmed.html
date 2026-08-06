@@ -83,6 +83,13 @@
       <div class="row" id="travelRow" style="display:none;"><span>Travel Fee</span><strong id="travelAmt"></strong></div>
     </div>
 
+    <div class="card" style="border-color:var(--rose);background:var(--rose-tint);">
+      <h3 style="color:var(--rose);">One Last Step</h3>
+      <p style="margin:0 0 14px;font-size:14.5px;">Please email a reference photo of the hair style, nail design, or lash look you'd like so we can finalize your exact pricing and appointment details — including hair provided, if needed.</p>
+      <a class="cta" id="refPhotoCta" href="mailto:monstrslayboutique@outlook.com?subject=Reference Photo &amp; Appointment Details&amp;body=Hi! Attaching my reference photo for my upcoming appointment. Here are my details:%0D%0A%0D%0AName: %0D%0AServices booked: %0D%0A" style="background:var(--rose);margin-top:0;">Email Your Reference Photo</a>
+      <p class="hint" style="margin-top:10px;">Tap the button, then attach your photo before sending — your email app won't attach it automatically.</p>
+    </div>
+
     <div class="card">
       <h3>Deposit Receipt</h3>
       <div class="deposit-box">
@@ -142,6 +149,9 @@
     }
 
     document.getElementById('depositAmt').textContent = '$' + (data.amount/100).toFixed(2);
+
+    const mailBody = `Hi! Attaching my reference photo for my upcoming appointment. Here are my details:%0D%0A%0D%0AName: ${encodeURIComponent(data.clientName || '')}%0D%0AServices booked: ${encodeURIComponent((data.services || []).join(', '))}%0D%0A`;
+    document.getElementById('refPhotoCta').href = `mailto:monstrslayboutique@outlook.com?subject=${encodeURIComponent('Reference Photo & Appointment Details')}&body=${mailBody}`;
 
     if(data.signedAt){
       const d = new Date(data.signedAt);
