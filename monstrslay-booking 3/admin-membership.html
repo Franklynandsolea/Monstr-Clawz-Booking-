@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership Admin — Monstr Slay Boutique & Monstr Clawz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FBF7F2; --paper:#FFFFFF; --ink:#211621;
+    --ink-soft:rgba(33,22,33,0.68); --ink-faint:rgba(33,22,33,0.48);
+    --rose:#A6455C; --rose-tint:#F4DEE4; --gold:#A9791E; --gold-tint:#F3E7C6;
+    --line:rgba(33,22,33,0.16); --ok:#2F7A4E; --err:#B23B3B;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ivory);color:var(--ink);font-family:'Manrope',sans-serif;line-height:1.5;}
+  h1,h2{font-family:'Fraunces',serif;font-weight:500;margin:0;}
+  main{max-width:960px;margin:0 auto;padding:32px 18px 80px;}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+  input[type=password], input[type=text]{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:10px 12px;font-size:14px;font-family:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  .btn{background:var(--rose);color:var(--ivory);border:none;padding:10px 18px;font-size:12.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;}
+  .btn.ghost{background:var(--paper);color:var(--ink);border:1px solid var(--line);}
+  .btn.small{padding:5px 10px;font-size:11px;}
+
+  #loginScreen{max-width:360px;margin:80px auto;text-align:center;}
+  #loginScreen input{width:100%;margin:14px 0;}
+  #loginError{color:var(--err);font-size:12.5px;display:none;}
+
+  #dashboard{display:none;}
+  .filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+  .filters select{background:var(--paper);border:1px solid var(--line);padding:9px 10px;font-size:13px;font-family:inherit;}
+
+  .member-card{border:1px solid var(--line);background:var(--paper);padding:18px;margin-bottom:14px;}
+  .member-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  .member-name{font-family:'Fraunces';font-size:17px;}
+  .member-meta{font-size:12.5px;color:var(--ink-soft);}
+  .badge{display:inline-block;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);margin-left:8px;}
+  .badge.active{border-color:var(--ok);color:var(--ok);}
+  .badge.canceled{border-color:var(--err);color:var(--err);}
+  .badge.early{border-color:var(--err);color:var(--err);background:#fbeaea;}
+
+  .redemption-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(33,22,33,0.08);}
+  .redemption-row:first-of-type{border-top:none;}
+  .redemption-label{font-size:13.5px;}
+  .redemption-count{font-size:13px;color:var(--ink-soft);margin-right:10px;}
+  .redemption-actions{display:flex;gap:6px;}
+
+  #emptyState, #loadError{text-align:center;color:var(--ink-faint);padding:40px 0;}
+  #loadError{color:var(--err);display:none;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <h1>Membership Admin</h1>
+  <p style="color:var(--ink-soft);font-size:13.5px;">Enter your admin password to continue.</p>
+  <input type="password" id="passwordInput" placeholder="Admin password">
+  <p id="loginError">Incorrect password.</p>
+  <button class="btn" id="loginBtn" style="width:100%;">Log In</button>
+</div>
+
+<main id="dashboard">
+  <div class="top">
+    <h1>Membership Admin</h1>
+    <button class="btn ghost small" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div class="filters">
+    <select id="statusFilter">
+      <option value="active">Active members</option>
+      <option value="all">All members</option>
+      <option value="canceled">Canceled</option>
+    </select>
+  </div>
+
+  <div id="memberList"></div>
+  <p id="emptyState" style="display:none;">No members found.</p>
+  <p id="loadError">Couldn't load members. Check your connection and try again.</p>
+</main>
+
+<script>
+let adminPassword = sessionStorage.getItem('mslay_admin_pw') || '';
+let allMembers = [];
+
+const TIER_LABELS = { nailRefresh:'Nail Refresh', lashNail:'Lash & Nail', fullSlay:'Full Slay' };
+
+async function tryLogin(pw){
+  const res = await fetch('/.netlify/functions/admin-members', { headers: { 'x-admin-password': pw } });
+  if(res.status === 401) return false;
+  const data = await res.json();
+  allMembers = data.members || [];
+  adminPassword = pw;
+  sessionStorage.setItem('mslay_admin_pw', pw);
+  return true;
+}
+
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
+  const pw = document.getElementById('passwordInput').value;
+  const ok = await tryLogin(pw).catch(()=>false);
+  if(ok){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    renderMembers();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+});
+document.getElementById('passwordInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+async function loadMembers(){
+  try{
+    const res = await fetch('/.netlify/functions/admin-members', { headers: { 'x-admin-password': adminPassword } });
+    if(!res.ok) throw new Error('load failed');
+    const data = await res.json();
+    allMembers = data.members || [];
+    document.getElementById('loadError').style.display = 'none';
+    renderMembers();
+  } catch(err){
+    document.getElementById('loadError').style.display = 'block';
+  }
+}
+
+function renderMembers(){
+  const filter = document.getElementById('statusFilter').value;
+  const listEl = document.getElementById('memberList');
+  let members = allMembers;
+  if(filter === 'active') members = members.filter(m => m.status === 'active');
+  if(filter === 'canceled') members = members.filter(m => m.status === 'canceled');
+
+  document.getElementById('emptyState').style.display = members.length ? 'none' : 'block';
+
+  listEl.innerHTML = members.map(m => {
+    const tierLabel = TIER_LABELS[m.tierId] || m.tierId;
+    const statusBadge = m.status === 'active'
+      ? '<span class="badge active">Active</span>'
+      : `<span class="badge canceled">Canceled</span>${m.earlyCancellation ? '<span class="badge early">Before commitment ended</span>' : ''}`;
+    const commitmentText = m.commitmentEnd
+      ? 'Commitment through ' + new Date(m.commitmentEnd).toLocaleDateString('en-US',{dateStyle:'medium'})
+      : '';
+
+    const rows = Object.keys(m.redemptionsCap || {}).map(key=>{
+      const cap = m.redemptionsCap[key];
+      const used = (m.redemptionsUsed && m.redemptionsUsed[key]) || 0;
+      const atCap = used >= cap;
+      return `<div class="redemption-row">
+        <span class="redemption-label">${key}</span>
+        <span>
+          <span class="redemption-count">${used}/${cap}</span>
+          <span class="redemption-actions">
+            <button class="btn ghost small" data-action="undo" data-sub="${m.subscriptionId}" data-cat="${key}" ${used<=0?'disabled':''}>−1</button>
+            <button class="btn small" data-action="log" data-sub="${m.subscriptionId}" data-cat="${key}" ${atCap?'disabled':''}>Log Redemption</button>
+          </span>
+        </span>
+      </div>`;
+    }).join('');
+
+    return `<div class="member-card">
+      <div class="member-head">
+        <div>
+          <span class="member-name">${m.clientName || '(no name on file)'}</span>
+          ${statusBadge}
+        </div>
+        <div class="member-meta">${tierLabel} · ${m.clientEmail || ''} · ${m.clientPhone || ''}</div>
+      </div>
+      <div class="member-meta" style="margin-bottom:10px;">${commitmentText}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  listEl.querySelectorAll('button[data-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=> logRedemption(btn.dataset.sub, btn.dataset.cat, btn.dataset.action));
+  });
+}
+
+async function logRedemption(subscriptionId, category, action){
+  try{
+    const res = await fetch('/.netlify/functions/log-redemption', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-password':adminPassword},
+      body: JSON.stringify({ subscriptionId, category, action }),
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      alert(err.error || 'Could not log redemption.');
+      return;
+    }
+    await loadMembers();
+  } catch(err){
+    alert('Network error logging redemption.');
+  }
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadMembers);
+document.getElementById('statusFilter').addEventListener('change', renderMembers);
+
+// Auto-login if a password is already saved in this browser tab's session.
+if(adminPassword){
+  tryLogin(adminPassword).then(ok=>{
+    if(ok){
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      renderMembers();
+    }
+  });
+}
+</script>
+</body>
+</html>
