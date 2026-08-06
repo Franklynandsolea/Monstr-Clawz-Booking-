@@ -324,7 +324,7 @@
   <section class="panel active" id="panel-1">
     <div class="grid with-summary">
       <div>
-        <div class="eyebrow">Step 1 of 4</div>
+        <div class="eyebrow">Step 1 of 5</div>
         <h2 class="section-title">Build Your Appointment</h2>
         <p class="section-sub">Select every service you'd like. Your total and deposit update as you go.</p>
         <div id="serviceCategories"></div>
@@ -363,13 +363,34 @@
 
     <div class="nav-row">
       <span></span>
-      <button class="btn btn-primary" id="toStep2">Continue to Client Info</button>
+      <button class="btn btn-primary" id="toStep2">Continue to Date &amp; Time</button>
     </div>
   </section>
 
-  <!-- STEP 2 — CLIENT INFO + HEALTH -->
+  <!-- STEP 2 — DATE & TIME -->
   <section class="panel" id="panel-2">
-    <div class="eyebrow">Step 2 of 4</div>
+    <div class="eyebrow">Step 2 of 5</div>
+    <h2 class="section-title">Choose Your Date &amp; Time</h2>
+    <p class="section-sub">Availability updates live from our real calendar — no double-booking.</p>
+
+    <div class="field" style="max-width:280px;">
+      <label for="apptDate">Appointment Date</label>
+      <input type="date" id="apptDate">
+    </div>
+
+    <div id="slotStatus" class="hint" style="margin-bottom:10px;"></div>
+    <div id="slotGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;"></div>
+
+    <p class="error-msg" id="step2DateError">Please choose an available date and time before continuing.</p>
+    <div class="nav-row">
+      <button class="btn btn-ghost" data-back="1">Back</button>
+      <button class="btn btn-primary" id="toStep3">Continue to Client Info</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 — CLIENT INFO + HEALTH -->
+  <section class="panel" id="panel-3">
+    <div class="eyebrow">Step 3 of 5</div>
     <h2 class="section-title">Your Information &amp; Health Questionnaire</h2>
     <p class="section-sub">We only ask what's relevant to the services you selected. Please answer honestly — it keeps you safe.</p>
 
@@ -450,14 +471,14 @@
 
     <p class="error-msg" id="step2Error">Please complete all required fields marked with * before continuing.</p>
     <div class="nav-row">
-      <button class="btn btn-ghost" data-back="1">Back</button>
-      <button class="btn btn-primary" id="toStep3">Continue to Policies</button>
+      <button class="btn btn-ghost" data-back="2">Back</button>
+      <button class="btn btn-primary" id="toStep4">Continue to Policies</button>
     </div>
   </section>
 
-  <!-- STEP 3 — POLICIES -->
-  <section class="panel" id="panel-3">
-    <div class="eyebrow">Step 3 of 4</div>
+  <!-- STEP 4 — POLICIES -->
+  <section class="panel" id="panel-4">
+    <div class="eyebrow">Step 4 of 5</div>
     <h2 class="section-title">Review Our Policies</h2>
     <p class="section-sub">Each acknowledgment below is required to confirm your booking.</p>
 
@@ -506,14 +527,14 @@
 
     <p class="error-msg" id="step3Error">Please check every required policy box to continue.</p>
     <div class="nav-row">
-      <button class="btn btn-ghost" data-back="2">Back</button>
-      <button class="btn btn-primary" id="toStep4">Continue to Review &amp; Sign</button>
+      <button class="btn btn-ghost" data-back="3">Back</button>
+      <button class="btn btn-primary" id="toStep5">Continue to Review &amp; Sign</button>
     </div>
   </section>
 
-  <!-- STEP 4 — REVIEW, SIGN, PAY -->
-  <section class="panel" id="panel-4">
-    <div class="eyebrow">Step 4 of 4</div>
+  <!-- STEP 5 — REVIEW, SIGN, PAY -->
+  <section class="panel" id="panel-5">
+    <div class="eyebrow">Step 5 of 5</div>
     <h2 class="section-title">Final Review, Signature &amp; Deposit</h2>
     <p class="section-sub">Confirm everything below, then sign and secure your appointment with a 25% deposit.</p>
 
@@ -550,7 +571,7 @@
     </div>
 
     <div class="nav-row">
-      <button class="btn btn-ghost" data-back="3">Back</button>
+      <button class="btn btn-ghost" data-back="4">Back</button>
       <span></span>
     </div>
   </section>
@@ -586,13 +607,13 @@
         <ul>
           <li>1 nail fill or color change monthly</li>
           <li>2 lash refills monthly</li>
-          <li>1 Signature Crochet Install or Pre-Made Faux Locs (shoulder/mid-back) + takedown, monthly</li>
-          <li>15% off everything else, including Handmade Faux Locs &amp; Mega Glam</li>
+          <li>1 Signature Crochet Install or Pre-Made/Handmade Faux Locs Touch-up/Retwist monthly</li>
+          <li>15% off everything else, including Pre-Made/Handmade Faux Locs &amp; Mega Glam</li>
         </ul>
       </div>
     </div>
-    <p class="hint" style="margin-top:18px;">All passes require a 3-month minimum commitment, billed monthly. Unused redemptions don't roll over. Handmade Faux Locs and Mega Glam lashes are always available at your member discount, not included outright.</p>
-    <p class="hint" style="margin-top:10px;">Ready to join? <a href="/membership.html" style="color:#E8B9CC;font-weight:700;">Sign up online</a>, or email <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a> and we'll set it up for you.</p>
+    <p class="hint" style="margin-top:18px;">All passes require a 3-month minimum commitment, billed monthly. Unused redemptions don't roll over. Pre-Made/Handmade Faux Locs and Mega Glam lashes are always available at your member discount, not included outright.</p>
+    <p class="hint" style="margin-top:10px;">Ready to join? <a href="/membership.html" style="color:#E8B9CC;font-weight:700;">Sign up online</a>, or email <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a> if you have questions first.</p>
   </div>
 </section>
 
@@ -621,6 +642,7 @@ const CATEGORIES = [
       {id:'premadeMidBack', name:'Mid Back', price:195, note:'Starting at'},
       {id:'premadeWaist', name:'Waist Length', price:225, note:'Starting at'},
       {id:'premadeButt', name:'Butt Length', price:250, note:'Starting at'},
+      {id:'locsTouchUp', name:'Touch-up / Retwist (Pre-Made or Handmade Faux Locs)', price:75},
     ]
   },
   {
@@ -742,7 +764,7 @@ const fmt = n => '$' + n.toFixed(0);
 /* =========================================================
    RENDER: STEPPER
 ========================================================= */
-const STEP_NAMES = ['Services','Info & Health','Policies','Sign & Pay'];
+const STEP_NAMES = ['Services','Date & Time','Info & Health','Policies','Sign & Pay'];
 function renderStepper(){
   const wrap = document.getElementById('stepper');
   wrap.innerHTML = STEP_NAMES.map((name,i)=>{
@@ -976,12 +998,15 @@ function goToStep(n){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+n).classList.add('active');
   renderStepper();
-  if(n === 3){
+  if(n === 2){
+    initDatePicker();
+  }
+  if(n === 4){
     renderPolicies();
     document.getElementById('hairPrepBlock').style.display = categoriesSelected(HAIR_CATS) ? 'block' : 'none';
     updateAgeBlocks();
   }
-  if(n === 4) renderReview();
+  if(n === 5) renderReview();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 document.querySelectorAll('[data-back]').forEach(btn=>{
@@ -991,14 +1016,21 @@ document.querySelectorAll('[data-back]').forEach(btn=>{
 document.getElementById('toStep2').addEventListener('click', ()=>goToStep(2));
 
 document.getElementById('toStep3').addEventListener('click', ()=>{
-  const requiredIds = ['fullName','dob','phone','email','address','ecName','ecPhone'];
-  const missing = requiredIds.some(id => !document.getElementById(id).value.trim());
-  document.getElementById('step2Error').style.display = missing ? 'block' : 'none';
+  const missing = !state.appointment || !state.appointment.start;
+  document.getElementById('step2DateError').style.display = missing ? 'block' : 'none';
   if(missing) return;
   goToStep(3);
 });
 
 document.getElementById('toStep4').addEventListener('click', ()=>{
+  const requiredIds = ['fullName','dob','phone','email','address','ecName','ecPhone'];
+  const missing = requiredIds.some(id => !document.getElementById(id).value.trim());
+  document.getElementById('step2Error').style.display = missing ? 'block' : 'none';
+  if(missing) return;
+  goToStep(4);
+});
+
+document.getElementById('toStep5').addEventListener('click', ()=>{
   const checks = document.querySelectorAll('.policyCheck');
   const allChecked = Array.from(checks).every(c=>c.checked);
   const hairPrepVisible = document.getElementById('hairPrepBlock').style.display === 'block';
@@ -1014,11 +1046,86 @@ document.getElementById('toStep4').addEventListener('click', ()=>{
   }
   document.getElementById('step3Error').style.display = (!allChecked || !hairPrepOk || !adultOk || !minorOk) ? 'block' : 'none';
   if(!allChecked || !hairPrepOk || !adultOk || !minorOk) return;
-  goToStep(4);
+  goToStep(5);
 });
 
 /* =========================================================
-   REVIEW (STEP 4)
+   DATE & TIME (STEP 2) — real-time Google Calendar availability
+========================================================= */
+const CATEGORY_DURATIONS = {
+  hair: 105, premadeLocs: 120, locs: 240, hairAddons: 30,
+  nails: 60, nailArt: 20, nailEffects: 20, lashes: 75,
+};
+
+function estimatedDurationMinutes(){
+  const cats = new Set(Object.values(state.selected).map(it=>it.category));
+  let total = 0;
+  cats.forEach(c => { total += CATEGORY_DURATIONS[c] || 0; });
+  return Math.max(total, 30);
+}
+
+function initDatePicker(){
+  const dateInput = document.getElementById('apptDate');
+  if(!dateInput.dataset.initialized){
+    const tomorrow = new Date(Date.now() + 24*3600*1000);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+    dateInput.addEventListener('change', fetchAvailability);
+    dateInput.dataset.initialized = 'true';
+  }
+  if(dateInput.value) fetchAvailability();
+}
+
+async function fetchAvailability(){
+  const dateInput = document.getElementById('apptDate');
+  const statusEl = document.getElementById('slotStatus');
+  const gridEl = document.getElementById('slotGrid');
+  gridEl.innerHTML = '';
+  state.appointment = state.appointment || {};
+  state.appointment.start = null;
+
+  if(!dateInput.value){ statusEl.textContent = ''; return; }
+
+  const duration = estimatedDurationMinutes();
+  statusEl.textContent = 'Checking availability…';
+
+  try{
+    const res = await fetch(`/.netlify/functions/get-availability?date=${dateInput.value}&durationMinutes=${duration}`);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const slots = data.slots || [];
+
+    if(data.reason === 'closed'){
+      statusEl.textContent = 'We\u2019re closed that day — please pick another date.';
+      return;
+    }
+    if(!slots.length){
+      statusEl.textContent = 'No open times that day — please try another date.';
+      return;
+    }
+
+    statusEl.textContent = `${slots.length} time${slots.length===1?'':'s'} available:`;
+    gridEl.innerHTML = slots.map(iso => {
+      const d = new Date(iso);
+      const label = d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+      return `<button type="button" class="btn btn-ghost slot-btn" data-iso="${iso}" style="padding:10px 6px;font-size:12.5px;">${label}</button>`;
+    }).join('');
+
+    gridEl.querySelectorAll('.slot-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        gridEl.querySelectorAll('.slot-btn').forEach(b=>{ b.style.borderColor=''; b.style.background=''; });
+        btn.style.borderColor = 'var(--gold)';
+        btn.style.background = 'var(--gold-tint)';
+        state.appointment = { start: btn.dataset.iso, durationMinutes: duration };
+        document.getElementById('step2DateError').style.display = 'none';
+      });
+    });
+  } catch(err){
+    statusEl.textContent = 'Couldn\u2019t load availability. Please try again or text/email us to book.';
+  }
+}
+
+/* =========================================================
+   REVIEW (STEP 5)
 ========================================================= */
 function renderReview(){
   const items = Object.values(state.selected);
@@ -1030,8 +1137,12 @@ function renderReview(){
   const name = document.getElementById('fullName').value;
   const email = document.getElementById('email').value;
   const phone = document.getElementById('phone').value;
+  const apptText = state.appointment && state.appointment.start
+    ? new Date(state.appointment.start).toLocaleString('en-US', {dateStyle:'full', timeStyle:'short'})
+    : '—';
 
   document.getElementById('reviewSummary').innerHTML = `
+    <div class="review-row"><span>Appointment</span><span>${apptText}</span></div>
     <div class="review-row"><span>Client</span><span>${name || '—'}</span></div>
     <div class="review-row"><span>Contact</span><span>${phone || '—'} · ${email || '—'}</span></div>
     ${items.map(it=>`<div class="review-row"><span>${it.name}</span><span>${it.price===0?'Included':fmt(it.price)}</span></div>`).join('')}
@@ -1129,11 +1240,14 @@ document.getElementById('payBtn').addEventListener('click', async ()=>{
     clientName: document.getElementById('fullName').value,
     clientEmail: document.getElementById('email').value,
     clientPhone: document.getElementById('phone').value,
+    clientAddress: document.getElementById('address').value,
     services: Object.values(state.selected).map(it=>it.name),
     mobile: state.mobile,
     travelFee: state.mobile ? state.distanceFee : 0,
     signatureName: document.getElementById('typedName').value,
     signedAt: new Date().toISOString(),
+    appointmentStart: state.appointment ? state.appointment.start : null,
+    durationMinutes: state.appointment ? state.appointment.durationMinutes : null,
   };
 
   try{

@@ -36,11 +36,14 @@ exports.handler = async function (event) {
       clientName,
       clientEmail,
       clientPhone,
+      clientAddress,
       services,        // array of service names
       mobile,
       travelFee,
       signatureName,
       signedAt,
+      appointmentStart,  // ISO string — the chosen calendar slot
+      durationMinutes,   // estimated appointment length in minutes
     } = body;
 
     if (!amount || amount < 100) {
@@ -71,11 +74,14 @@ exports.handler = async function (event) {
       metadata: {
         clientName: clientName || '',
         clientPhone: clientPhone || '',
+        clientAddress: (clientAddress || '').slice(0, 490),
         services: (services || []).join(' | ').slice(0, 490),
         mobile: mobile ? 'yes' : 'no',
         travelFee: String(travelFee || 0),
         signatureName: signatureName || '',
         signedAt: signedAt || '',
+        appointmentStart: appointmentStart || '',
+        durationMinutes: String(durationMinutes || ''),
       },
       success_url: SUCCESS_URL + '?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: CANCEL_URL,

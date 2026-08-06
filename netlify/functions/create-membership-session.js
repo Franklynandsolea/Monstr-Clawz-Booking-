@@ -10,8 +10,8 @@
 const Stripe = require('stripe');
 const { TIERS, COMMITMENT_MONTHS } = require('./lib/tiers');
 
-const SUCCESS_URL = 'https://monstrclawzbooking.netlify.app/membership-confirmed.html';
-const CANCEL_URL = 'https://monstrclawzbooking.netlify.app/membership.html';
+const SUCCESS_URL = 'https://YOUR-DOMAIN.netlify.app/membership-confirmed.html';
+const CANCEL_URL = 'https://YOUR-DOMAIN.netlify.app/membership.html';
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {

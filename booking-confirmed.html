@@ -79,6 +79,7 @@
 
     <div class="card">
       <h3>Appointment Summary</h3>
+      <p id="apptDateTime" style="display:none;font-family:'Fraunces';font-size:16px;color:var(--rose);margin:0 0 12px;"></p>
       <ul class="plain" id="serviceList"></ul>
       <div class="row" id="travelRow" style="display:none;"><span>Travel Fee</span><strong id="travelAmt"></strong></div>
     </div>
@@ -142,6 +143,12 @@
 
     document.getElementById('serviceList').innerHTML = (data.services || [])
       .map(s => `<li>${s}</li>`).join('') || '<li>Service details on file</li>';
+
+    if(data.appointmentStart){
+      const apptEl = document.getElementById('apptDateTime');
+      apptEl.style.display = 'block';
+      apptEl.textContent = new Date(data.appointmentStart).toLocaleString('en-US', {dateStyle:'full', timeStyle:'short'});
+    }
 
     if(data.mobile && data.travelFee > 0){
       document.getElementById('travelRow').style.display = 'flex';

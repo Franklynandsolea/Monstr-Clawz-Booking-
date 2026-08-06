@@ -33,6 +33,7 @@ exports.handler = async function (event) {
         travelFee: Number(session.metadata.travelFee || 0),
         signatureName: session.metadata.signatureName || '',
         signedAt: session.metadata.signedAt || '',
+        appointmentStart: session.metadata.appointmentStart || '',
       }),
     };
   } catch (err) {

@@ -8,6 +8,7 @@ const TIERS = {
     id: 'nailRefresh',
     label: 'Nail Refresh',
     price: 9900, // cents / month
+    earlyCancellationFee: 9900, // cents — charged if canceled before the 3-month commitment ends
     discount: 10, // % off nail art add-ons
     redemptionCaps: { nailFill: 1 },
     redemptionLabels: { nailFill: 'Nail Fill / Color Change' },
@@ -17,6 +18,7 @@ const TIERS = {
     id: 'lashNail',
     label: 'Lash & Nail',
     price: 18500,
+    earlyCancellationFee: 18500,
     discount: 10,
     redemptionCaps: { nailFill: 1, lashRefill: 2 },
     redemptionLabels: { nailFill: 'Nail Fill / Color Change', lashRefill: 'Lash Refill' },
@@ -26,10 +28,11 @@ const TIERS = {
     id: 'fullSlay',
     label: 'Full Slay',
     price: 34900,
+    earlyCancellationFee: 34900,
     discount: 15,
     redemptionCaps: { nailFill: 1, lashRefill: 2, hairService: 1 },
-    redemptionLabels: { nailFill: 'Nail Fill / Color Change', lashRefill: 'Lash Refill', hairService: 'Crochet Install / Pre-Made Locs + Takedown' },
-    description: '1 nail fill or color change + 2 lash refills + 1 Signature Crochet Install or Pre-Made Faux Locs (shoulder/mid-back) with takedown monthly, 15% off everything else.',
+    redemptionLabels: { nailFill: 'Nail Fill / Color Change', lashRefill: 'Lash Refill', hairService: 'Crochet Install / Pre-Made or Handmade Locs Touch-up/Retwist' },
+    description: '1 nail fill or color change + 2 lash refills + 1 Signature Crochet Install or Pre-Made/Handmade Faux Locs Touch-up/Retwist monthly, 15% off everything else, including Pre-Made/Handmade Faux Locs & Mega Glam.',
   },
 };
 

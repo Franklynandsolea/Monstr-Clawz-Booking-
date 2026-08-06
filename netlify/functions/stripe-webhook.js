@@ -22,6 +22,7 @@
 
 const Stripe = require('stripe');
 const { Resend } = require('resend');
+const { getCalendarClient, getCalendarId } = require('./lib/googleCalendar');
 
 const AFTERCARE = {
   hair: {
@@ -119,7 +120,38 @@ function buildAftercareSection(serviceNames){
   return html;
 }
 
-async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mobile, travelFee, signedAt }) {
+async function createCalendarEvent({ clientName, clientPhone, clientEmail, services, mobile, travelFee, clientAddress, appointmentStart, durationMinutes }) {
+  const calendar = getCalendarClient();
+  const calendarId = getCalendarId();
+
+  const start = new Date(appointmentStart);
+  const duration = parseInt(durationMinutes, 10) || 60;
+  const end = new Date(start.getTime() + duration * 60000);
+
+  const descriptionLines = [
+    `Client: ${clientName || 'Unknown'}`,
+    `Phone: ${clientPhone || '—'}`,
+    `Email: ${clientEmail || '—'}`,
+    `Services: ${(services || []).join(', ') || '—'}`,
+  ];
+  if (mobile) {
+    descriptionLines.push(`Mobile appointment — travel fee $${travelFee || 0}`);
+    if (clientAddress) descriptionLines.push(`Client address: ${clientAddress}`);
+  }
+
+  await calendar.events.insert({
+    calendarId,
+    requestBody: {
+      summary: `${clientName || 'Client'} — ${(services || [])[0] || 'Appointment'}`,
+      description: descriptionLines.join('\n'),
+      location: mobile ? (clientAddress || 'Mobile appointment') : undefined,
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
+    },
+  });
+}
+
+async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mobile, travelFee, signedAt, appointmentStart }) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const fromEmail = process.env.BUSINESS_FROM_EMAIL || 'bookings@monstrslay.org';
 
@@ -127,6 +159,9 @@ async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mo
   const depositDisplay = `$${(amountPaid / 100).toFixed(2)}`;
   const aftercareHtml = buildAftercareSection(services);
   const dateDisplay = signedAt ? new Date(signedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  const appointmentDisplay = appointmentStart
+    ? new Date(appointmentStart).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+    : '';
 
   const html = `
   <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;background:#FBF7F2;padding:32px 28px;color:#211621;">
@@ -137,6 +172,7 @@ async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mo
     <p style="font-family:Arial,sans-serif;">Your appointment request and deposit have been received. Here's everything on file:</p>
 
     <div style="border:1px solid #E2D8CE;padding:16px 18px;margin:18px 0;background:#fff;">
+      ${appointmentDisplay ? `<p style="font-family:Arial,sans-serif;font-weight:700;margin:0 0 10px;color:#A6455C;">${appointmentDisplay}</p>` : ''}
       <p style="font-family:Arial,sans-serif;font-weight:700;margin:0 0 8px;">Services Requested</p>
       <ul style="font-family:Arial,sans-serif;margin:0 0 10px;padding-left:20px;">${serviceListHtml}</ul>
       ${mobile ? `<p style="font-family:Arial,sans-serif;margin:6px 0;">Mobile appointment — travel fee: $${travelFee}</p>` : ''}
@@ -184,6 +220,25 @@ exports.handler = async function (event) {
     const meta = session.metadata || {};
     const toEmail = session.customer_email || meta.clientEmail;
 
+    if (meta.appointmentStart) {
+      try {
+        await createCalendarEvent({
+          clientName: meta.clientName,
+          clientPhone: meta.clientPhone,
+          clientEmail: toEmail,
+          services: (meta.services || '').split(' | ').filter(Boolean),
+          mobile: meta.mobile === 'yes',
+          travelFee: meta.travelFee,
+          clientAddress: meta.clientAddress,
+          appointmentStart: meta.appointmentStart,
+          durationMinutes: meta.durationMinutes,
+        });
+      } catch (err) {
+        console.error('Failed to create calendar event:', err);
+        // Don't fail the webhook over calendar issues — Stripe already has the payment.
+      }
+    }
+
     if (toEmail) {
       try {
         await sendConfirmationEmail({
@@ -194,6 +249,7 @@ exports.handler = async function (event) {
           mobile: meta.mobile === 'yes',
           travelFee: meta.travelFee,
           signedAt: meta.signedAt,
+          appointmentStart: meta.appointmentStart,
         });
       } catch (err) {
         console.error('Failed to send confirmation email:', err);

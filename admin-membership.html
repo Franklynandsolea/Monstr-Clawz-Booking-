@@ -158,6 +158,17 @@ function renderMembers(){
       </div>`;
     }).join('');
 
+    let feeSection = '';
+    if(m.earlyCancellation){
+      if(m.earlyCancellationFeeCharged){
+        feeSection = `<div class="member-meta" style="margin-top:10px;color:var(--ok);">Early-cancellation fee charged: $${(m.earlyCancellationFeeAmount/100).toFixed(2)} on ${new Date(m.earlyCancellationFeeChargedAt).toLocaleDateString('en-US',{dateStyle:'medium'})}</div>`;
+      } else {
+        feeSection = `<div style="margin-top:10px;">
+          <button class="btn small" data-action="charge-fee" data-sub="${m.subscriptionId}" data-name="${m.clientName || 'this member'}" style="background:var(--err);">Charge Early-Cancellation Fee</button>
+        </div>`;
+      }
+    }
+
     return `<div class="member-card">
       <div class="member-head">
         <div>
@@ -168,12 +179,37 @@ function renderMembers(){
       </div>
       <div class="member-meta" style="margin-bottom:10px;">${commitmentText}</div>
       ${rows}
+      ${feeSection}
     </div>`;
   }).join('');
 
-  listEl.querySelectorAll('button[data-action]').forEach(btn=>{
+  listEl.querySelectorAll('button[data-action="log"], button[data-action="undo"]').forEach(btn=>{
     btn.addEventListener('click', ()=> logRedemption(btn.dataset.sub, btn.dataset.cat, btn.dataset.action));
   });
+  listEl.querySelectorAll('button[data-action="charge-fee"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> chargeEarlyFee(btn.dataset.sub, btn.dataset.name));
+  });
+}
+
+async function chargeEarlyFee(subscriptionId, clientName){
+  const confirmed = confirm(`Charge the saved card on file for ${clientName}'s early-cancellation fee? This charges their card immediately.`);
+  if(!confirmed) return;
+  try{
+    const res = await fetch('/.netlify/functions/charge-early-cancellation-fee', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-password':adminPassword},
+      body: JSON.stringify({ subscriptionId }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok){
+      alert(data.error || 'Could not charge the fee.');
+      return;
+    }
+    alert('Fee charged successfully.');
+    await loadMembers();
+  } catch(err){
+    alert('Network error charging fee.');
+  }
 }
 
 async function logRedemption(subscriptionId, category, action){
