@@ -144,6 +144,11 @@ async function sendConfirmationEmail({ toEmail, toName, services, amountPaid, mo
       ${dateDisplay ? `<p style="font-family:Arial,sans-serif;font-size:12px;color:#6b6b6b;margin:6px 0 0;">Signed &amp; submitted: ${dateDisplay}</p>` : ''}
     </div>
 
+    <div style="border:2px solid #A6455C;background:#F4DEE4;padding:16px 18px;margin:18px 0;">
+      <p style="font-family:Arial,sans-serif;font-weight:700;margin:0 0 8px;color:#A6455C;">One Last Step — Send Your Reference Photo</p>
+      <p style="font-family:Arial,sans-serif;margin:0;">Please reply to this email (or send to <a href="mailto:monstrslayboutique@outlook.com" style="color:#A6455C;">monstrslayboutique@outlook.com</a>) with a photo of the hair style, nail design, or lash look you'd like. We'll use it to finalize your exact pricing and appointment details — including hair provided, if needed.</p>
+    </div>
+
     <p style="font-family:Arial,sans-serif;font-weight:700;margin:20px 0 6px;">Before Your Appointment</p>
     <p style="font-family:Arial,sans-serif;margin:0 0 10px;">Please arrive with hair freshly washed, completely dry, detangled, and free of heavy oils or product buildup. If it's a mobile appointment, please have a clean, well-lit space with an outlet ready.</p>
 

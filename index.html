@@ -335,6 +335,7 @@
             <input type="checkbox" id="mobileToggle">
             <label for="mobileToggle">This is a mobile appointment (I'll be traveled to)</label>
           </div>
+          <p class="hint" id="mobileGateHint">Select at least one hair, nail, or lash service above first.</p>
           <div id="mobileDistanceWrap" style="display:none;margin-top:10px;">
             <label style="font-size:12.5px;color:rgba(246,241,236,0.75);display:block;margin-bottom:6px;">Distance from base location</label>
             <select id="mobileDistance" class="inline" style="width:100%;">
@@ -490,7 +491,7 @@
     <div id="adultBlock" class="conditional-block" style="display:none;">
       <div class="check-item">
         <input type="checkbox" id="policyAdult">
-        <label for="policyAdult">I confirm that I am 18 years of age or older.</label>
+        <label for="policyAdult" id="policyAdultLabel">I confirm that I am 18 years of age or older.</label>
       </div>
     </div>
 
@@ -621,6 +622,8 @@ const CATEGORIES = [
   },
   {
     id:'hairAddons', title:'Hair Add-Ons', note:'Starting prices',
+    requiresBase:['hair','premadeLocs','locs'],
+    gateNote:'Requires a hair style service (Crochet Styles, Pre-Made Faux Locs, or Handmade Faux Locs) to be added to your appointment.',
     contactNote:'Need us to provide the hair, or need extra hair for your style? Email <a href="mailto:monstrslayboutique@outlook.com">monstrslayboutique@outlook.com</a> before booking so we can quote it accurately — pricing varies by style and length.',
     items:[
       {id:'ombre', name:'Ombré / Custom Color Blend', price:50},
@@ -630,6 +633,7 @@ const CATEGORIES = [
   {
     id:'nails', title:'Nails — Base Service', note:'Short length only',
     kind:'radio',
+    contactNote:'Prices shown are for short length only. Final pricing for length, condition, and any add-ons will be confirmed before your service is rendered at your appointment.',
     items:[
       {id:'acrylicFull', name:'Acrylic Full Set', price:60},
       {id:'acrylicFill', name:'Acrylic Fill', price:45},
@@ -647,6 +651,8 @@ const CATEGORIES = [
   },
   {
     id:'nailArt', title:'Nail Art — Service-Friendly Designs', note:'Conservative, everyday',
+    requiresBase:'nails',
+    gateNote:'Requires a paid nail base service (above) to be added to your appointment.',
     items:[
       {id:'frenchTip', name:'Classic French Tip', price:10},
       {id:'babyBoomer', name:'Baby Boomer (French Fade)', price:15},
@@ -661,6 +667,8 @@ const CATEGORIES = [
   },
   {
     id:'nailEffects', title:'Premium Nail Effects', note:'Statement finishes',
+    requiresBase:'nails',
+    gateNote:'Requires a paid nail base service (above) to be added to your appointment.',
     items:[
       {id:'glowWhite', name:'Glow-in-the-Dark Acrylic (White)', price:20},
       {id:'glowPink', name:'Glow-in-the-Dark Acrylic (Light Pink)', price:20},
@@ -747,13 +755,13 @@ function renderCategories(){
   const wrap = document.getElementById('serviceCategories');
   wrap.innerHTML = CATEGORIES.map(cat=>{
     const inputType = cat.kind === 'radio' ? 'radio' : 'checkbox';
+    const baseList = cat.requiresBase ? (Array.isArray(cat.requiresBase) ? cat.requiresBase : [cat.requiresBase]) : null;
+    const requiresBaseAttr = baseList ? `data-requires-base="${baseList.join(',')}"` : '';
     const rows = cat.items.map(item=>{
       const isPriceModifier = item.note === 'Starting at';
       const isIncluded = item.note === 'Included';
       const priceLabel = isIncluded ? 'Included' : (isPriceModifier ? `${item.note} ${fmt(item.price)}` : fmt(item.price));
-      const requiresBaseAttr = isIncluded ? `data-requires-base="nails"` : '';
-      const requiresBaseHint = isIncluded ? `<span class="note">Requires a paid nail base service</span>` : '';
-      const descriptiveNote = (item.note && !isPriceModifier && !isIncluded) ? `<span class="note">${item.note}</span>` : requiresBaseHint;
+      const descriptiveNote = (item.note && !isPriceModifier && !isIncluded) ? `<span class="note">${item.note}</span>` : '';
       return `<div class="service-row">
         <input type="${inputType}" name="${cat.id}" id="${item.id}" data-cat="${cat.id}" data-name="${item.name}" data-price="${item.price}" ${requiresBaseAttr}>
         <label for="${item.id}">${item.name}${descriptiveNote}</label>
@@ -761,29 +769,39 @@ function renderCategories(){
       </div>`;
     }).join('');
     const contactNoteHtml = cat.contactNote ? `<p class="hint" style="padding:0 16px 12px;">${cat.contactNote}</p>` : '';
+    const gateNoteHtml = cat.gateNote ? `<p class="hint" style="padding:0 16px 12px;color:var(--rose);">${cat.gateNote}</p>` : '';
     return `<div class="category">
       <div class="category-head"><h3>${cat.title}</h3>${cat.note ? `<span class="category-note">${cat.note}</span>`:''}</div>
       <div class="service-list">${rows}</div>
-      ${contactNoteHtml}
+      ${contactNoteHtml}${gateNoteHtml}
     </div>`;
   }).join('');
 
   wrap.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(input=>{
     input.addEventListener('change', onServiceChange);
   });
-  updateNailArtGating();
+  updateBaseGating();
 }
 
-function updateNailArtGating(){
-  const hasNailBase = categoriesSelected(['nails']);
-  document.querySelectorAll('[data-requires-base="nails"]').forEach(input=>{
-    input.disabled = !hasNailBase;
-    const row = input.closest('.service-row');
-    if(row) row.style.opacity = hasNailBase ? '1' : '0.45';
-    if(!hasNailBase && input.checked){
-      input.checked = false;
-      delete state.selected[input.id];
-    }
+function updateBaseGating(){
+  // Handles any category that declares requiresBase (nail art/effects requiring
+  // a base nail service, hair add-ons requiring a base hair style, etc).
+  const groups = new Set();
+  document.querySelectorAll('[data-requires-base]').forEach(input=>{
+    groups.add(input.dataset.requiresBase);
+  });
+  groups.forEach(groupKey=>{
+    const baseCats = groupKey.split(',');
+    const hasBase = categoriesSelected(baseCats);
+    document.querySelectorAll(`[data-requires-base="${groupKey}"]`).forEach(input=>{
+      input.disabled = !hasBase;
+      const row = input.closest('.service-row');
+      if(row) row.style.opacity = hasBase ? '1' : '0.45';
+      if(!hasBase && input.checked){
+        input.checked = false;
+        delete state.selected[input.id];
+      }
+    });
   });
 }
 
@@ -852,7 +870,21 @@ function updateSummary(){
   document.getElementById('toStep2').disabled = items.length === 0;
 
   refreshConditionalHealth();
-  updateNailArtGating();
+  updateBaseGating();
+  updateMobileGating();
+}
+
+function updateMobileGating(){
+  const mobileToggle = document.getElementById('mobileToggle');
+  const hasAnyService = Object.keys(state.selected).length > 0;
+  mobileToggle.disabled = !hasAnyService;
+  document.getElementById('mobileGateHint').style.display = hasAnyService ? 'none' : 'block';
+  if(!hasAnyService && mobileToggle.checked){
+    mobileToggle.checked = false;
+    state.mobile = false;
+    state.distanceFee = 0;
+    document.getElementById('mobileDistanceWrap').style.display = 'none';
+  }
 }
 
 /* =========================================================
@@ -897,17 +929,31 @@ function renderPolicies(){
 /* =========================================================
    MINOR / ADULT CONSENT — age check
 ========================================================= */
-function updateAgeBlocks(){
+function ageFromDOB(){
   const dobVal = document.getElementById('dob').value;
-  if(!dobVal) return;
+  if(!dobVal) return null;
   const dob = new Date(dobVal);
-  if(isNaN(dob)) return;
-  const age = Math.floor((Date.now() - dob.getTime()) / (365.25*24*3600*1000));
+  if(isNaN(dob)) return null;
+  return Math.floor((Date.now() - dob.getTime()) / (365.25*24*3600*1000));
+}
+function updateAgeBlocks(){
+  const age = ageFromDOB();
+  if(age === null) return;
   const isMinor = age < 18;
   document.getElementById('minorBlock').style.display = isMinor ? 'block' : 'none';
   document.getElementById('adultBlock').style.display = isMinor ? 'none' : 'block';
+  const label = document.getElementById('policyAdultLabel');
+  if(label){
+    label.textContent = `I confirm that I am 18 years of age or older. (Age on file from date of birth entered: ${age})`;
+  }
+  // If DOB indicates a minor, an already-checked adult box no longer applies.
+  if(isMinor){
+    const adultCheck = document.getElementById('policyAdult');
+    if(adultCheck) adultCheck.checked = false;
+  }
 }
 document.getElementById('dob').addEventListener('change', updateAgeBlocks);
+document.getElementById('dob').addEventListener('input', updateAgeBlocks);
 
 /* =========================================================
    STEP NAVIGATION
