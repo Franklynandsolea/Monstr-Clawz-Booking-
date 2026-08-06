@@ -19,8 +19,8 @@
 
 const Stripe = require('stripe');
 
-const SUCCESS_URL = 'https://YOUR-DOMAIN.netlify.app/booking-confirmed.html';
-const CANCEL_URL = 'https://YOUR-DOMAIN.netlify.app/index.html';
+const SUCCESS_URL = 'https://monstrclawzbooking.netlify.app/booking-confirmed.html';
+const CANCEL_URL = 'https://monstrclawzbooking.netlify.app/index.html';
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
